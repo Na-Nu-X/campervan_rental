@@ -1,0 +1,68 @@
+<header class="navbar" [class.is-scrolled]="scrolled()" [class.is-open]="menuOpen()">
+  <div class="navbar__inner container">
+    <a class="wordmark" routerLink="/" [attr.aria-label]="site.companyName + ' – domov'">
+      <span class="wordmark__mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32"><path d="M16 4l2 7.2 7.2 2-7.2 2.1L16 22.5l-2-7.2-7.2-2.1 7.2-2z" /><path d="M6 27h20" /></svg>
+      </span>
+      <span class="wordmark__name">{{ site.wordmark.name }}</span>
+      <span class="wordmark__suffix">{{ site.wordmark.suffix }}</span>
+    </a>
+
+    <nav class="navbar__nav" aria-label="Hlavná navigácia">
+      @for (link of links; track link.path) {
+        <a
+          class="navbar__link"
+          [routerLink]="link.path"
+          routerLinkActive="is-active"
+          ariaCurrentWhenActive="page"
+        >{{ link.label }}</a>
+      }
+    </nav>
+
+    <div class="navbar__actions">
+      <a class="navbar__phone tabular" [href]="site.phoneHref">
+        <app-icon name="phone" [size]="18" />
+        <span>{{ site.phone }}</span>
+      </a>
+      <a class="btn btn--primary btn--sm navbar__cta" routerLink="/ako-to-funguje" fragment="rezervacia">
+        Overiť dostupnosť
+      </a>
+      <button
+        type="button"
+        class="navbar__toggle"
+        (click)="toggleMenu()"
+        [attr.aria-expanded]="menuOpen()"
+        aria-controls="mobile-drawer"
+        [attr.aria-label]="menuOpen() ? 'Zavrieť menu' : 'Otvoriť menu'"
+      >
+        <app-icon [name]="menuOpen() ? 'close' : 'menu'" [size]="24" />
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="drawer-backdrop" [class.is-visible]="menuOpen()" (click)="closeMenu()" aria-hidden="true"></div>
+<aside
+  id="mobile-drawer"
+  class="drawer"
+  [class.is-open]="menuOpen()"
+  [attr.aria-hidden]="!menuOpen()"
+  [attr.inert]="menuOpen() ? null : ''"
+  aria-label="Mobilné menu"
+>
+  <nav class="drawer__nav">
+    <a class="drawer__link" routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Domov</a>
+    @for (link of links; track link.path) {
+      <a class="drawer__link" [routerLink]="link.path" routerLinkActive="is-active">
+        {{ link.label }}
+        <app-icon name="chevron-right" [size]="18" />
+      </a>
+    }
+  </nav>
+  <a class="btn btn--primary btn--block" routerLink="/ako-to-funguje" fragment="rezervacia">Overiť dostupnosť</a>
+  <div class="drawer__contact">
+    <a [href]="site.phoneHref" class="tabular"><app-icon name="phone" [size]="18" /> {{ site.phone }}</a>
+    <a [href]="'mailto:' + site.email"><app-icon name="mail" [size]="18" /> {{ site.email }}</a>
+    <p><app-icon name="pin" [size]="18" /> {{ site.depot.street }}, {{ site.depot.city }}</p>
+  </div>
+</aside>

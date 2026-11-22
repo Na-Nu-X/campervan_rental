@@ -1,0 +1,112 @@
+@use 'styles/mixins' as m;
+@use 'styles/typography' as t;
+
+:host {
+  display: block;
+}
+
+.route-card {
+  @include m.card;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: box-shadow 260ms ease;
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+
+    img {
+      transform: scale(1.04);
+    }
+  }
+
+  &__media {
+    position: relative;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    background: var(--color-mist);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 800ms var(--ease-out);
+    }
+
+    .pill {
+      position: absolute;
+      top: 0.9rem;
+      left: 0.9rem;
+    }
+  }
+
+  &__body {
+    display: grid;
+    align-content: start;
+    gap: 0.75rem;
+    padding: 1.35rem;
+
+    h3 {
+      @include t.h3;
+    }
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 0;
+    list-style: none;
+    font-size: 0.82rem;
+    font-weight: 650;
+    color: var(--color-amber-ink);
+
+    li {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+  }
+
+  &__summary {
+    color: var(--color-ink-soft);
+    font-size: 0.95rem;
+  }
+
+  &__highlights {
+    display: grid;
+    gap: 0.45rem;
+    padding: 0.9rem 0 0;
+    border-top: 1px solid var(--color-border);
+    list-style: none;
+    font-size: 0.9rem;
+
+    li {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    app-icon {
+      color: var(--color-pine);
+      margin-top: 0.2rem;
+    }
+  }
+
+  // Wide variant: image beside content on large screens
+  &--wide {
+    @include m.mq(lg) {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+
+      .route-card__media {
+        aspect-ratio: auto;
+        min-height: 100%;
+      }
+
+      .route-card__body {
+        padding: 2rem;
+      }
+    }
+  }
+}

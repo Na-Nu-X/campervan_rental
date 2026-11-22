@@ -1,0 +1,129 @@
+@use 'styles/mixins' as m;
+@use 'styles/typography' as t;
+
+:host {
+  display: block;
+}
+
+.camper-card {
+  @include m.card;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: box-shadow 260ms ease, transform 260ms var(--ease-out), border-color 260ms ease;
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+    border-color: #d6d2c7;
+
+    .camper-card__media img {
+      transform: scale(1.05);
+    }
+  }
+
+  &__media {
+    position: relative;
+    display: block;
+    aspect-ratio: 10 / 7;
+    background: var(--color-mist);
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 800ms var(--ease-out);
+
+      @include m.reduced-motion {
+        transition: none;
+      }
+    }
+  }
+
+  &__tags {
+    position: absolute;
+    inset: 0.9rem 0.9rem auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 1.25rem 1.35rem 1.35rem;
+  }
+
+  &__title {
+    @include t.h3;
+
+    a {
+      color: var(--color-ink);
+      text-decoration: none;
+
+      &:hover {
+        color: var(--color-pine);
+      }
+    }
+  }
+
+  &__subtitle {
+    margin-top: 0.25rem;
+    font-size: 0.88rem;
+    color: var(--color-ink-soft);
+  }
+
+  &__specs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem 1rem;
+    margin-top: 1.1rem;
+    padding: 1rem 0 0;
+    border-top: 1px solid var(--color-border);
+    list-style: none;
+    font-size: 0.88rem;
+    color: var(--color-ink-soft);
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    app-icon {
+      color: var(--color-pine);
+    }
+  }
+
+  &__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: auto;
+    padding-top: 1.25rem;
+  }
+
+  &__price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+
+    strong {
+      font-family: var(--font-serif);
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--color-ink);
+    }
+  }
+
+  &__from,
+  &__per {
+    font-size: 0.85rem;
+    color: var(--color-ink-soft);
+  }
+}

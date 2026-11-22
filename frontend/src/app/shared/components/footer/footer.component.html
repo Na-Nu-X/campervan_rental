@@ -1,0 +1,83 @@
+<footer class="footer">
+  <div class="footer__cta">
+    <div class="container footer__cta-inner">
+      <div>
+        <p class="eyebrow">Pripravení vyraziť?</p>
+        <h2>Váš ďalší výhľad z okna si vyberiete sami.</h2>
+      </div>
+      <div class="footer__cta-actions">
+        <a class="btn btn--amber" routerLink="/ako-to-funguje" fragment="rezervacia">Overiť dostupnosť</a>
+        <a class="btn btn--outline-light" [href]="site.phoneHref">
+          <app-icon name="phone" [size]="18" /> <span class="tabular">{{ site.phone }}</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container footer__grid">
+    <div class="footer__brand">
+      <a class="footer__wordmark" routerLink="/">
+        {{ site.wordmark.name }} <span>{{ site.wordmark.suffix }}</span>
+      </a>
+      <p class="footer__tagline">{{ site.tagline }}</p>
+      <ul class="footer__notes">
+        <li><app-icon name="license" [size]="18" /> {{ site.licenseNote }}</li>
+        <li><app-icon name="shield" [size]="18" /> {{ site.assistanceNote }}</li>
+      </ul>
+      <ul class="footer__social" aria-label="Sociálne siete">
+        @for (s of site.social; track s.name) {
+          <li>
+            <a [href]="s.url" target="_blank" rel="noopener" [attr.aria-label]="s.name + ' – ' + s.handle">
+              <app-icon [name]="socialIcon(s.name)" [size]="20" />
+            </a>
+          </li>
+        }
+      </ul>
+    </div>
+
+    <div>
+      <h3 class="footer__heading">Výdajné miesto</h3>
+      <address class="footer__address">
+        <strong>{{ site.depot.label }}</strong><br />
+        {{ site.depot.street }}<br />
+        {{ site.depot.city }}, {{ site.depot.country }}
+      </address>
+      <p class="footer__small">
+        <app-icon name="parking" [size]="16" /> {{ site.parkingNote }}
+      </p>
+      <a class="footer__link" [href]="site.depot.mapUrl" target="_blank" rel="noopener">Zobraziť na mape</a>
+    </div>
+
+    <div>
+      <h3 class="footer__heading">Otváracie hodiny</h3>
+      <dl class="footer__hours tabular">
+        @for (row of site.openingHours; track row.days) {
+          <div><dt>{{ row.days }}</dt><dd>{{ row.hours }}</dd></div>
+        }
+      </dl>
+      <p class="footer__small tabular">{{ site.pickupTimes }}</p>
+      <h3 class="footer__heading footer__heading--spaced">Kontakt</h3>
+      <a class="footer__link tabular" [href]="site.phoneHref">{{ site.phone }}</a><br />
+      <a class="footer__link" [href]="'mailto:' + site.email">{{ site.email }}</a>
+    </div>
+
+    <div>
+      <h3 class="footer__heading">Rýchle odkazy</h3>
+      <ul class="footer__links">
+        @for (link of quickLinks; track link.path) {
+          <li><a class="footer__link" [routerLink]="link.path">{{ link.label }}</a></li>
+        }
+        <li><a class="footer__link" routerLink="/ako-to-funguje" fragment="rezervacia">Rezervácia karavanu</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container footer__legal">
+    <p>
+      © {{ year }} {{ site.legalName }} • IČO: <span class="tabular">{{ site.legal.ico }}</span> •
+      DIČ: <span class="tabular">{{ site.legal.dic }}</span> • IČ DPH: <span class="tabular">{{ site.legal.icDph }}</span>
+    </p>
+    <p>{{ site.legal.registry }}</p>
+    <p>{{ site.gdprNote }}</p>
+  </div>
+</footer>

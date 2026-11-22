@@ -1,0 +1,190 @@
+<div class="estimator">
+  <form class="estimator__config" (submit)="$event.preventDefault()" aria-label="Konfigurácia cesty">
+    <header class="estimator__head">
+      <span class="estimator__icon"><app-icon name="compass" [size]="22" /></span>
+      <div>
+        <h3>{{ heading() }}</h3>
+        <p class="muted">Orientačná cena prenájmu za pár sekúnd – bez registrácie.</p>
+      </div>
+    </header>
+
+    @if (loadError()) {
+      <p class="alert alert--error" role="alert">
+        Nepodarilo sa načítať flotilu. Skontrolujte pripojenie a skúste to znova.
+      </p>
+    }
+
+    <!-- 1. Camper -->
+    <div class="step">
+      <span class="step__num">1</span>
+      <div class="field step__body">
+        <label class="field__label" for="est-camper">Výber karavanu</label>
+        <select
+          id="est-camper"
+          class="select"
+          [value]="selectedSlug()"
+          (change)="onCamperChange($event)"
+          [disabled]="loading()"
+        >
+          @if (loading()) {
+            <option value="">Načítavam flotilu…</option>
+          }
+          @for (c of campers(); track c.slug) {
+            <option [value]="c.slug" [selected]="c.slug === selectedSlug()">{{ c.name }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- 2. Season -->
+    <fieldset class="step">
+      <span class="step__num">2</span>
+      <div class="step__body">
+        <legend class="field__label">Sezóna / termín cesty</legend>
+        <div class="seasons" role="radiogroup">
+          @for (s of seasons; track s.key) {
+            <label class="season" [class.is-active]="season() === s.key">
+              <input
+                type="radio"
+                name="est-season"
+                class="visually-hidden"
+                [value]="s.key"
+                [checked]="season() === s.key"
+                (change)="season.set(s.key)"
+              />
+              <span class="season__title">{{ s.shortLabel }}</span>
+              <span class="season__months">{{ s.months }}</span>
+              @if (seasonRates()[s.key]; as rate) {
+                <span class="season__rate tabular">{{ rate | eur }} / deň</span>
+              }
+            </label>
+          }
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- 3. Days -->
+    <div class="step">
+      <span class="step__num">3</span>
+      <div class="field step__body">
+        <div class="days-head">
+          <label class="field__label" for="est-days">Počet dní prenájmu</label>
+          <output class="days-value tabular" for="est-days">{{ daysLabel(days()) }}</output>
+        </div>
+        <input
+          id="est-days"
+          type="range"
+          class="range"
+          [min]="minDays"
+          [max]="maxDays"
+          step="1"
+          [value]="days()"
+          (input)="onDaysInput($event)"
+          [style.--progress]="sliderProgress() + '%'"
+          aria-describedby="est-days-hint"
+        />
+        <div class="days-scale tabular" aria-hidden="true">
+          <span>{{ minDays }}</span>
+          @for (rule of discountRules; track rule.fromDays) {
+            <span class="days-scale__mark">{{ rule.fromDays }}+ = -{{ rule.percent }} %</span>
+          }
+          <span>{{ maxDays }}</span>
+        </div>
+        <p id="est-days-hint" class="field__hint">
+          @if (nextDiscountHint(); as hint) {
+            {{ hint }}
+          } @else {
+            Máte maximálnu zľavu za dlhú cestu.
+          }
+        </p>
+      </div>
+    </div>
+
+    <!-- 4. Accessories -->
+    <fieldset class="step">
+      <span class="step__num">4</span>
+      <div class="step__body">
+        <legend class="field__label">Doplnková výbava</legend>
+        <div class="accessories">
+          @for (a of accessories(); track a.id) {
+            <label class="accessory" [class.is-active]="selectedAccessoryIds().has(a.id)">
+              <input
+                type="checkbox"
+                [checked]="selectedAccessoryIds().has(a.id)"
+                (change)="toggleAccessory(a.id)"
+              />
+              <span class="accessory__name">{{ a.name }}</span>
+              <span class="accessory__price tabular">
+                {{ a.price_eur | eur }} {{ a.pricing_type === 'za_den' ? '/ deň' : '/ pobyt' }}
+              </span>
+            </label>
+          } @empty {
+            <p class="field__hint">Doplnková výbava sa načítava…</p>
+          }
+        </div>
+      </div>
+    </fieldset>
+  </form>
+
+  <aside class="estimator__summary" aria-live="polite">
+    @if (quote(); as q) {
+      @if (camper(); as c) {
+        <div class="summary__camper">
+          <img [src]="c.cover_image_url" [alt]="c.name" loading="lazy" width="96" height="72" />
+          <div>
+            <p class="summary__eyebrow">Vaša zostava</p>
+            <p class="summary__name">{{ c.name }}</p>
+          </div>
+        </div>
+      }
+
+      <dl class="summary__rows tabular">
+        <div>
+          <dt>Denná sadzba</dt>
+          <dd>{{ q.dailyRate | eur }}</dd>
+        </div>
+        <div>
+          <dt>Prenájom ({{ daysLabel(q.days) }})</dt>
+          <dd>{{ q.rentalSubtotal | eur }}</dd>
+        </div>
+        <div [class.is-highlight]="q.discountPercent > 0">
+          <dt>Zľava za dlhú cestu</dt>
+          <dd>
+            @if (q.discountPercent > 0) {
+              -{{ q.discountPercent }} % ( -{{ q.discountAmount | eur }} )
+            } @else {
+              0 %
+            }
+          </dd>
+        </div>
+        @if (selectedAccessories().length) {
+          <div>
+            <dt>Doplnková výbava ({{ selectedAccessories().length }})</dt>
+            <dd>{{ q.accessoriesTotal | eur }}</dd>
+          </div>
+        }
+        <div>
+          <dt>Jednorazový servisný poplatok</dt>
+          <dd>{{ q.serviceFee | eur }}</dd>
+        </div>
+      </dl>
+
+      <div class="summary__total">
+        <span>Celková cena prenájmu</span>
+        <strong class="tabular">{{ q.total | eur }}</strong>
+      </div>
+
+      <p class="summary__deposit">
+        <app-icon name="shield" [size]="18" />
+        <span>Vratná kaucia <strong class="tabular">{{ q.deposit | eur }}</strong> – vrátime ju do 3 pracovných dní po vrátení vozidla.</span>
+      </p>
+
+      <button type="button" class="btn btn--amber btn--block" (click)="requestAvailability()">
+        Overiť dostupnosť pre tento výber <app-icon name="arrow" [size]="18" />
+      </button>
+      <p class="summary__note">Orientačná kalkulácia vrátane DPH. Presnú ponuku pošleme do 24 hodín.</p>
+    } @else {
+      <div class="skeleton summary__skeleton"></div>
+    }
+  </aside>
+</div>

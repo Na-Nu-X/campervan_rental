@@ -1,0 +1,46 @@
+@let c = camper();
+<article class="camper-card">
+  <a class="camper-card__media" [routerLink]="['/karavany', c.slug]" tabindex="-1" aria-hidden="true">
+    <img
+      [src]="c.cover_image_url"
+      [alt]="c.name"
+      [attr.loading]="priority() ? 'eager' : 'lazy'"
+      decoding="async"
+      width="800"
+      height="560"
+    />
+    <div class="camper-card__tags">
+      <span class="pill pill--light">{{ c.category_label }}</span>
+      @if (c.badge !== 'none') {
+        <span class="badge">{{ c.badge_label }}</span>
+      }
+    </div>
+  </a>
+
+  <div class="camper-card__body">
+    <h3 class="camper-card__title">
+      <a [routerLink]="['/karavany', c.slug]">{{ shortName() }}</a>
+    </h3>
+    @if (subtitle()) {
+      <p class="camper-card__subtitle">{{ subtitle() }}</p>
+    }
+
+    <ul class="camper-card__specs tabular" aria-label="Parametre vozidla">
+      <li><app-icon name="seat" [size]="18" /> {{ seatsLabel() }}</li>
+      <li><app-icon name="bed" [size]="18" /> {{ berthsLabel() }}</li>
+      <li><app-icon name="gear" [size]="18" /> {{ c.transmission === 'automat' ? 'Automat' : 'Manuál' }}</li>
+      <li><app-icon name="ruler" [size]="18" /> {{ c.length_meters | decimalSk }} m</li>
+    </ul>
+
+    <div class="camper-card__footer">
+      <p class="camper-card__price">
+        <span class="camper-card__from">od</span>
+        <strong class="tabular">{{ c.starting_price_eur | eur }}</strong>
+        <span class="camper-card__per">/ deň</span>
+      </p>
+      <a class="text-link" [routerLink]="['/karavany', c.slug]">
+        Detail karavanu <app-icon name="arrow" [size]="18" />
+      </a>
+    </div>
+  </div>
+</article>
