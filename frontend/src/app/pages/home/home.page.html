@@ -1,0 +1,196 @@
+<!-- Hero -->
+<section class="hero">
+  <img class="hero__image" [src]="heroImage" alt="" fetchpriority="high" width="2400" height="1600" />
+  <div class="hero__overlay" aria-hidden="true"></div>
+
+  <div class="container hero__inner">
+    <div class="hero__copy">
+      <p class="eyebrow hero__eyebrow">{{ site.tagline }}</p>
+      <h1 class="hero__title">{{ site.heroClaim }}</h1>
+      <p class="hero__lead">
+        Moderné obytné dodávky, polointegrované a integrované karavany aj rodinné alkovne.
+        Kompletne vybavené, pravidelne servisované a pripravené na vašu cestu po Európe.
+      </p>
+      <div class="hero__actions">
+        <a class="btn btn--amber" routerLink="/karavany">
+          Prezrieť flotilu karavanov <app-icon name="arrow" [size]="18" />
+        </a>
+        <a class="btn btn--outline-light" href="#kalkulacka">Vypočítať cenu cesty</a>
+      </div>
+    </div>
+
+    <form class="quick-filter" (submit)="searchFleet($event)" aria-label="Rýchle vyhľadávanie karavanu">
+      <p class="quick-filter__title">
+        <app-icon name="compass" [size]="20" /> Nájdite si karavan
+      </p>
+      <div class="field">
+        <label class="field__label" for="qf-people">Počet osôb</label>
+        <select id="qf-people" class="select" (change)="setPeople($event)">
+          <option value="">Ľubovoľný</option>
+          @for (n of peopleOptions; track n) {
+            <option [value]="n">{{ n }} {{ n < 5 ? 'osoby' : 'osôb' }}{{ n === 6 ? '' : ' a viac' }}</option>
+          }
+        </select>
+      </div>
+      <div class="field">
+        <label class="field__label" for="qf-category">Typ karavanu</label>
+        <select id="qf-category" class="select" (change)="setCategory($event)">
+          <option value="">Všetky typy</option>
+          @for (o of categoryOptions; track o.value) {
+            <option [value]="o.value">{{ o.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="field">
+        <label class="field__label" for="qf-transmission">Prevodovka</label>
+        <select id="qf-transmission" class="select" (change)="setTransmission($event)">
+          <option value="">Nezáleží</option>
+          @for (o of transmissionOptions; track o.value) {
+            <option [value]="o.value">{{ o.label }}</option>
+          }
+        </select>
+      </div>
+      <button type="submit" class="btn btn--primary quick-filter__submit">
+        Hľadať karavany <app-icon name="arrow" [size]="18" />
+      </button>
+    </form>
+  </div>
+
+  <div class="container">
+    <ul class="metrics" aria-label="Prečo nám dôverujú">
+      @for (m of site.trustMetrics; track m.label) {
+        <li>
+          <strong class="tabular">{{ m.value }}</strong>
+          <span>{{ m.label }}</span>
+        </li>
+      }
+    </ul>
+  </div>
+</section>
+
+<!-- Featured fleet -->
+<section class="section">
+  <div class="container">
+    <div class="section-head section-head--split">
+      <div>
+        <p class="eyebrow">Flotila</p>
+        <h2>Vybrané karavany z našej flotily</h2>
+        <p>Od kompaktnej dodávky pre dvoch až po luxusný integrovaný karavan. Každé vozidlo je mladšie ako 2 roky.</p>
+      </div>
+      <a class="btn btn--ghost" routerLink="/karavany">Celá flotila <app-icon name="arrow" [size]="18" /></a>
+    </div>
+
+    @switch (campersStatus()) {
+      @case ('error') {
+        <p class="alert alert--error" role="alert">
+          Flotilu sa nepodarilo načítať. Skúste prosím obnoviť stránku.
+        </p>
+      }
+      @case ('ready') {
+        <div class="grid grid--3 featured">
+          @for (c of featured(); track c.slug; let i = $index) {
+            <app-camper-card [camper]="c" [priority]="i < 3" />
+          }
+        </div>
+      }
+      @default {
+        <div class="grid grid--3">
+          @for (i of [1, 2, 3]; track i) {
+            <div class="skeleton skeleton-card"></div>
+          }
+        </div>
+      }
+    }
+  </div>
+</section>
+
+<!-- Estimator -->
+<section class="section section--mist" id="kalkulacka">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Transparentné ceny</p>
+      <h2>Koľko bude stáť vaša cesta?</h2>
+      <p>Vyberte karavan, sezónu a dĺžku cesty. Zľavu za dlhší prenájom započítame automaticky – žiadne skryté poplatky.</p>
+    </div>
+    <app-camper-trip-and-cost-estimator />
+  </div>
+</section>
+
+<!-- Trust pillars -->
+<section class="section section--forest">
+  <div class="container">
+    <div class="section-head section-head--center">
+      <p class="eyebrow">Bez starostí</p>
+      <h2>Prečo cestovať s našimi karavanmi</h2>
+    </div>
+    <ul class="pillars">
+      @for (p of pillars; track p.title) {
+        <li class="pillar">
+          <span class="pillar__icon"><app-icon [name]="p.icon" [size]="24" /></span>
+          <h3>{{ p.title }}</h3>
+          <p>{{ p.text }}</p>
+        </li>
+      }
+    </ul>
+  </div>
+</section>
+
+<!-- Routes preview -->
+<section class="section">
+  <div class="container">
+    <div class="section-head section-head--split">
+      <div>
+        <p class="eyebrow">Inšpirácie</p>
+        <h2>Inšpirácie na trasy</h2>
+        <p>Overené okruhy od našich posádok – s tipmi na kempy, vyhliadky a zastávky, ktoré nenájdete v sprievodcoch.</p>
+      </div>
+      <a class="btn btn--ghost" routerLink="/tipy-na-trasy">Všetky trasy <app-icon name="arrow" [size]="18" /></a>
+    </div>
+
+    @if (routesStatus() === 'ready') {
+      <div class="grid grid--3">
+        @for (r of routes(); track r.slug) {
+          <app-route-card [route]="r">
+            <a class="text-link" routerLink="/tipy-na-trasy" [fragment]="r.slug">
+              Čítať viac <app-icon name="arrow" [size]="18" />
+            </a>
+          </app-route-card>
+        }
+      </div>
+    } @else if (routesStatus() === 'error') {
+      <p class="alert alert--error" role="alert">Trasy sa nepodarilo načítať.</p>
+    } @else {
+      <div class="grid grid--3">
+        @for (i of [1, 2, 3]; track i) {
+          <div class="skeleton skeleton-card"></div>
+        }
+      </div>
+    }
+  </div>
+</section>
+
+<!-- Reviews -->
+<section class="section section--mist">
+  <div class="container">
+    <div class="section-head section-head--center">
+      <p class="eyebrow">Recenzie</p>
+      <h2>Čo hovoria naše posádky</h2>
+    </div>
+    <div class="grid grid--3">
+      @for (r of reviews; track r.name) {
+        <figure class="review card">
+          <div class="review__stars" [attr.aria-label]="'Hodnotenie ' + r.rating + ' z 5'">
+            @for (s of stars(r.rating); track s) {
+              <app-icon name="star" [size]="18" />
+            }
+          </div>
+          <blockquote>„{{ r.text }}“</blockquote>
+          <figcaption>
+            <strong>{{ r.name }}</strong>
+            <span>{{ r.trip }}</span>
+          </figcaption>
+        </figure>
+      }
+    </div>
+  </div>
+</section>

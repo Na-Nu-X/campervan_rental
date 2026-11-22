@@ -1,0 +1,143 @@
+@let f = filters();
+<section class="page-intro">
+  <div class="container">
+    <p class="eyebrow">Flotila karavanov</p>
+    <h1>Naše karavany a obytné autá</h1>
+    <p>
+      Kompaktné campervany pre dvoch, polointegrované karavany pre páry aj rodiny,
+      luxusné integrované modely a priestranné alkovne. Na všetky stačí vodičský preukaz skupiny B.
+    </p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container fleet">
+    <button
+      type="button"
+      class="btn btn--ghost fleet__toggle"
+      (click)="filtersOpen.set(!filtersOpen())"
+      [attr.aria-expanded]="filtersOpen()"
+      aria-controls="fleet-filters"
+    >
+      Filtrovať karavany
+      @if (activeFilterCount()) {
+        <span class="fleet__count tabular">{{ activeFilterCount() }}</span>
+      }
+      <app-icon name="chevron-down" [size]="18" />
+    </button>
+
+    <aside id="fleet-filters" class="filters" [class.is-open]="filtersOpen()" aria-label="Filtre flotily">
+      <div class="filters__group">
+        <h2 class="filters__title">Typ karavanu</h2>
+        <div class="chips">
+          <button type="button" class="chip" [class.is-active]="!f.category" (click)="setFilter('category', null)">Všetky</button>
+          @for (o of categoryOptions; track o.value) {
+            <button
+              type="button"
+              class="chip"
+              [class.is-active]="f.category === o.value"
+              [attr.aria-pressed]="f.category === o.value"
+              (click)="setFilter('category', o.value)"
+            >{{ o.label }}</button>
+          }
+        </div>
+      </div>
+
+      <div class="filters__group">
+        <h2 class="filters__title">Prevodovka</h2>
+        <div class="chips">
+          <button type="button" class="chip" [class.is-active]="!f.transmission" (click)="setFilter('transmission', null)">Nezáleží</button>
+          @for (o of transmissionOptions; track o.value) {
+            <button
+              type="button"
+              class="chip"
+              [class.is-active]="f.transmission === o.value"
+              [attr.aria-pressed]="f.transmission === o.value"
+              (click)="setFilter('transmission', o.value)"
+            >{{ o.label }}</button>
+          }
+        </div>
+      </div>
+
+      <div class="filters__group">
+        <h2 class="filters__title">Minimálny počet lôžok</h2>
+        <div class="chips">
+          @for (o of berthOptions; track o.value) {
+            <button
+              type="button"
+              class="chip tabular"
+              [class.is-active]="f.min_berths === o.value"
+              [attr.aria-pressed]="f.min_berths === o.value"
+              (click)="setFilter('min_berths', o.value)"
+            >{{ o.label }}</button>
+          }
+        </div>
+      </div>
+
+      <div class="filters__group">
+        <label class="filters__title" for="fleet-max-price">Maximálna denná cena</label>
+        <select id="fleet-max-price" class="select" (change)="onSelect('max_price', $event)">
+          <option value="" [selected]="!f.max_price">Bez obmedzenia</option>
+          @for (o of maxPriceOptions; track o.value) {
+            <option [value]="o.value" [selected]="f.max_price === o.value">{{ o.label }}</option>
+          }
+        </select>
+        <p class="field__hint">Porovnávame s cenou „od“ v mimosezóne.</p>
+      </div>
+
+      @if (activeFilterCount()) {
+        <button type="button" class="btn btn--ghost btn--sm" (click)="resetFilters()">
+          <app-icon name="close" [size]="16" /> Zrušiť filtre
+        </button>
+      }
+    </aside>
+
+    <div class="results">
+      <div class="results__bar">
+        <p class="results__count" aria-live="polite">
+          @if (loading()) {
+            Hľadám vozidlá…
+          } @else {
+            Nájdené: <strong class="tabular">{{ resultLabel() }}</strong>
+          }
+        </p>
+        <div class="results__sort">
+          <label for="fleet-ordering">Zoradiť:</label>
+          <select id="fleet-ordering" class="select" (change)="onSelect('ordering', $event)">
+            @for (o of orderingOptions; track o.value) {
+              <option [value]="o.value" [selected]="(f.ordering ?? 'display_order') === o.value">{{ o.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      @if (error()) {
+        <p class="alert alert--error" role="alert">
+          Flotilu sa nepodarilo načítať. Skontrolujte, či beží API server, a skúste to znova.
+        </p>
+      } @else if (loading() && !campers().length) {
+        <div class="results__grid">
+          @for (i of [1, 2, 3, 4]; track i) {
+            <div class="skeleton results__skeleton"></div>
+          }
+        </div>
+      } @else {
+        <div class="results__grid" [class.is-loading]="loading()">
+          @for (c of campers(); track c.slug; let i = $index) {
+            <app-camper-card [camper]="c" [priority]="i < 2" />
+          } @empty {
+            <div class="empty card">
+              <app-icon name="compass" [size]="32" />
+              <h2>Takúto kombináciu momentálne nemáme</h2>
+              <p class="muted">Skúste upraviť filtre alebo nám napíšte – radi vám poradíme s výberom.</p>
+              <div class="empty__actions">
+                <button type="button" class="btn btn--primary" (click)="resetFilters()">Zobraziť všetky karavany</button>
+                <a class="btn btn--ghost" routerLink="/ako-to-funguje" fragment="poradenstvo">Poradiť sa s výberom</a>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</section>

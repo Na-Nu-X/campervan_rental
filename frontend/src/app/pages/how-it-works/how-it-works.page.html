@@ -1,0 +1,87 @@
+<section class="page-intro">
+  <div class="container">
+    <p class="eyebrow">Ako to funguje</p>
+    <h1>Od rezervácie po prvý západ slnka</h1>
+    <p>
+      Idete karavanom prvýkrát? Nevadí. Celý proces je jednoduchý a pri prevzatí vám všetko
+      podrobne vysvetlíme. Overte si dostupnosť – odpoveď máte do 24 hodín.
+    </p>
+  </div>
+</section>
+
+<!-- Steps -->
+<section class="section section--tight">
+  <div class="container">
+    <ol class="steps">
+      @for (s of steps; track s.title; let i = $index) {
+        <li class="steps__item">
+          <span class="steps__num tabular">{{ i + 1 }}</span>
+          <h2>{{ s.title }}</h2>
+          <p>{{ s.text }}</p>
+        </li>
+      }
+    </ol>
+  </div>
+</section>
+
+<!-- Booking -->
+<section class="section section--mist" id="rezervacia">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Rezervácia</p>
+      <h2>Overiť dostupnosť karavanu</h2>
+      <p>Vyplnenie trvá 2 minúty a je úplne nezáväzné. Termín vám podržíme 48 hodín, kým sa rozhodnete.</p>
+    </div>
+    <app-booking-form />
+  </div>
+</section>
+
+<!-- FAQ + consultation -->
+<section class="section">
+  <div class="container faq-layout">
+    <div>
+      <div class="section-head">
+        <p class="eyebrow">FAQ</p>
+        <h2>Časté otázky</h2>
+      </div>
+      <div class="faq">
+        @for (item of faq; track item.question; let first = $first) {
+          <details class="faq__item" name="faq" [open]="first">
+            <summary>
+              <span>{{ item.question }}</span>
+              <app-icon name="plus" [size]="20" />
+            </summary>
+            <p>{{ item.answer }}</p>
+          </details>
+        }
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="side__card card" id="poradenstvo">
+        <h2>Poradenstvo pred prvou cestou</h2>
+        <p class="muted">Neviete, ktorý karavan zvoliť alebo kam vyraziť? Napíšte nám, radi poradíme.</p>
+        <app-inquiry-form />
+      </div>
+
+      <div class="side__card side__card--forest">
+        <h2>Výdajné miesto</h2>
+        <p class="side__line"><app-icon name="pin" [size]="18" />
+          <span><strong>{{ site.depot.label }}</strong><br />{{ site.depot.street }}, {{ site.depot.city }}<br /><small>{{ site.depot.accessNote }}</small></span>
+        </p>
+        <dl class="side__hours tabular">
+          @for (row of site.openingHours; track row.days) {
+            <div><dt>{{ row.days }}</dt><dd>{{ row.hours }}</dd></div>
+          }
+        </dl>
+        <p class="side__line"><app-icon name="clock" [size]="18" /> <span class="tabular">{{ site.pickupTimes }}</span></p>
+        <p class="side__line"><app-icon name="parking" [size]="18" /> <span>{{ site.parkingNote }}</span></p>
+        <p class="side__line"><app-icon name="shield" [size]="18" /> <span>{{ site.assistanceNote }} <span class="tabular">{{ site.assistancePhone }}</span></span></p>
+        <div class="side__actions">
+          <a class="btn btn--light btn--sm" [href]="site.phoneHref"><app-icon name="phone" [size]="16" /> <span class="tabular">{{ site.phone }}</span></a>
+          <a class="btn btn--outline-light btn--sm" [href]="site.depot.mapUrl" target="_blank" rel="noopener">Navigovať</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>

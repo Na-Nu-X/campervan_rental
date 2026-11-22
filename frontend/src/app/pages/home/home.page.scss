@@ -1,0 +1,213 @@
+@use 'styles/mixins' as m;
+@use 'styles/typography' as t;
+
+// Hero ---------------------------------------------------------------------
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: var(--color-on-forest);
+  background: var(--color-forest);
+  padding-block: clamp(3rem, 8vw, 6rem) 2rem;
+
+  &__image {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 60%;
+  }
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(100deg, rgba(20, 43, 38, 0.92) 0%, rgba(20, 43, 38, 0.72) 45%, rgba(20, 43, 38, 0.25) 100%),
+      linear-gradient(0deg, rgba(20, 43, 38, 0.85) 0%, rgba(20, 43, 38, 0) 40%);
+  }
+
+  &__inner {
+    display: grid;
+    gap: 2.5rem;
+    align-items: end;
+
+    @include m.mq(lg) {
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+      gap: 4rem;
+      min-height: 32rem;
+    }
+  }
+
+  &__eyebrow {
+    color: #f2b35c;
+  }
+
+  &__title {
+    @include t.display;
+    margin-top: 1rem;
+    max-width: 14ch;
+  }
+
+  &__lead {
+    margin-top: 1.25rem;
+    max-width: 36rem;
+    font-size: clamp(1.02rem, 1.5vw, 1.15rem);
+    color: var(--color-on-forest-soft);
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+}
+
+.quick-filter {
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  box-shadow: var(--shadow-lg);
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-serif);
+    font-size: 1.3rem;
+
+    app-icon {
+      color: var(--color-amber);
+    }
+  }
+
+  &__submit {
+    margin-top: 0.25rem;
+  }
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+  padding: 1.75rem 0 0;
+  border-top: 1px solid rgba(250, 249, 245, 0.18);
+  list-style: none;
+
+  @include m.mq(md) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  li {
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  strong {
+    font-family: var(--font-serif);
+    font-size: clamp(1.6rem, 3vw, 2.1rem);
+    font-weight: 500;
+  }
+
+  span {
+    font-size: 0.85rem;
+    color: var(--color-on-forest-soft);
+  }
+}
+
+// Featured -----------------------------------------------------------------
+.skeleton-card {
+  height: 27rem;
+}
+
+// Pillars ------------------------------------------------------------------
+.pillars {
+  display: grid;
+  gap: 1rem;
+  padding: 0;
+  list-style: none;
+
+  @include m.mq(md) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @include m.mq(lg) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.pillar {
+  display: grid;
+  align-content: start;
+  gap: 0.8rem;
+  padding: 1.6rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(250, 249, 245, 0.12);
+  background: rgba(250, 249, 245, 0.04);
+
+  &__icon {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 12px;
+    background: rgba(217, 119, 6, 0.16);
+    color: #f2b35c;
+  }
+
+  h3 {
+    @include t.h3;
+    font-size: 1.2rem;
+  }
+
+  p {
+    font-size: 0.92rem;
+    color: var(--color-on-forest-soft);
+  }
+}
+
+// Reviews ------------------------------------------------------------------
+.review {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0;
+  padding: 1.75rem;
+
+  &__stars {
+    display: flex;
+    gap: 0.15rem;
+    color: var(--color-amber);
+
+    ::ng-deep svg {
+      fill: currentColor;
+    }
+  }
+
+  blockquote {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 1.08rem;
+    line-height: 1.55;
+  }
+
+  figcaption {
+    display: grid;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border);
+    font-size: 0.9rem;
+
+    span {
+      color: var(--color-ink-soft);
+      font-size: 0.82rem;
+    }
+  }
+}

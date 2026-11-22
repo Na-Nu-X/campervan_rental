@@ -1,0 +1,163 @@
+@if (submitted()) {
+  <div class="success card" role="status">
+    <span class="success__icon"><app-icon name="check-circle" [size]="36" /></span>
+    <h3>Ďakujeme, vašu požiadavku sme prijali!</h3>
+    <p class="muted">
+      Dostupnosť karavanu overíme a do 24 hodín vám pošleme presnú ponuku na e-mail.
+      V prípade otázok nám pokojne zavolajte na
+      <a [href]="site.phoneHref" class="tabular">{{ site.phone }}</a>.
+    </p>
+    <div class="success__actions">
+      <button type="button" class="btn btn--ghost" (click)="startOver()">Odoslať ďalšiu požiadavku</button>
+      <a class="btn btn--primary" routerLink="/tipy-na-trasy">Inšpirácie na trasy</a>
+    </div>
+  </div>
+} @else {
+  <div class="booking">
+    <form class="booking__form card" [formGroup]="form" (ngSubmit)="submit()" novalidate aria-label="Rezervácia a overenie dostupnosti">
+      @if (prefillNote(); as note) {
+        <p class="alert alert--info"><app-icon name="info" [size]="18" /> {{ note }}</p>
+      }
+
+      <fieldset class="group">
+        <legend class="group__title"><span class="group__num">1</span> Karavan a termín</legend>
+
+        <div class="field field--full">
+          <label class="field__label" for="bk-vehicle">Karavan *</label>
+          <select id="bk-vehicle" class="select" formControlName="vehicle" [class.is-invalid]="error('vehicle')">
+            <option value="">Vyberte karavan…</option>
+            @for (c of campers(); track c.slug) {
+              <option [value]="c.slug">{{ c.name }} – od {{ c.starting_price_eur | eur }} / deň</option>
+            }
+          </select>
+          @if (error('vehicle'); as msg) { <p class="field__error">{{ msg }}</p> }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="bk-pickup">Dátum prevzatia *</label>
+          <input id="bk-pickup" type="date" class="input tabular" formControlName="pickup_date" [min]="minPickup" [class.is-invalid]="error('pickup_date')" />
+          @if (error('pickup_date'); as msg) { <p class="field__error">{{ msg }}</p> }
+          @else if (pickupSeason(); as s) { <p class="field__hint">{{ s }}</p> }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="bk-return">Dátum vrátenia *</label>
+          <input id="bk-return" type="date" class="input tabular" formControlName="return_date" [min]="minReturn()" [class.is-invalid]="error('return_date') || groupError('returnBeforePickup')" />
+          @if (error('return_date') ?? groupError('returnBeforePickup'); as msg) { <p class="field__error">{{ msg }}</p> }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="bk-adults">Dospelí *</label>
+          <input id="bk-adults" type="number" class="input tabular" formControlName="adults_count" min="1" max="8" [class.is-invalid]="error('adults_count')" />
+          @if (error('adults_count'); as msg) { <p class="field__error">{{ msg }}</p> }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="bk-children">Deti</label>
+          <input id="bk-children" type="number" class="input tabular" formControlName="children_count" min="0" max="6" [class.is-invalid]="error('children_count') || groupError('tooManyTravellers')" />
+          @if (error('children_count') ?? groupError('tooManyTravellers'); as msg) { <p class="field__error">{{ msg }}</p> }
+        </div>
+
+        <div class="field field--full">
+          <label class="field__label" for="bk-destination">Kam sa chystáte? <span class="muted">(nepovinné)</span></label>
+          <input id="bk-destination" type="text" class="input" formControlName="destination_region" placeholder="napr. Chorvátsko, Taliansko, Nórsko" />
+        </div>
+      </fieldset>
+
+      <fieldset class="group">
+        <legend class="group__title"><span class="group__num">2</span> Doplnková výbava</legend>
+        <div class="extras field--full">
+          @for (a of accessories(); track a.id) {
+            <label class="check extra" [class.is-active]="selectedAccessoryIds().has(a.id)">
+              <input type="checkbox" [checked]="selectedAccessoryIds().has(a.id)" (change)="toggleAccessory(a.id)" />
+              <span>
+                {{ a.name }}
+                <small class="tabular">{{ a.price_eur | eur }} {{ a.pricing_type === 'za_den' ? '/ deň' : '/ pobyt' }}</small>
+              </span>
+            </label>
+          }
+        </div>
+      </fieldset>
+
+      <fieldset class="group">
+        <legend class="group__title"><span class="group__num">3</span> Kontaktné údaje</legend>
+
+        <div class="field field--full">
+          <label class="field__label" for="bk-name">Meno a priezvisko *</label>
+          <input id="bk-name" type="text" class="input" formControlName="client_name" autocomplete="name" [class.is-invalid]="error('client_name')" />
+          @if (error('client_name'); as msg) { <p class="field__error">{{ msg }}</p> }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="bk-email">E-mail *</label>
+          <input id="bk-email" type="email" class="input" formControlName="email" autocomplete="email" [class.is-invalid]="error('email')" />
+          @if (error('email'); as msg) { <p class="field__error">{{ msg }}</p> }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="bk-phone">Telefón *</label>
+          <input id="bk-phone" type="tel" class="input tabular" formControlName="phone" autocomplete="tel" placeholder="+421 9xx xxx xxx" [class.is-invalid]="error('phone')" />
+          @if (error('phone'); as msg) { <p class="field__error">{{ msg }}</p> }
+        </div>
+
+        <div class="field field--full">
+          <label class="field__label" for="bk-notes">Poznámka</label>
+          <textarea id="bk-notes" class="textarea" formControlName="notes" rows="4" placeholder="Cestujete so psom? Potrebujete detskú sedačku? Napíšte nám."></textarea>
+        </div>
+
+        <label class="check field--full">
+          <input type="checkbox" formControlName="consent" />
+          <span>Súhlasím so spracovaním osobných údajov na účely vybavenia rezervácie. *</span>
+        </label>
+        @if (error('consent'); as msg) { <p class="field__error field--full">{{ msg }}</p> }
+      </fieldset>
+
+      @if (formError(); as msg) {
+        <p class="alert alert--error" role="alert">{{ msg }}</p>
+      }
+
+      <button type="submit" class="btn btn--primary btn--block" [disabled]="submitting()">
+        @if (submitting()) { Odosielam… } @else { Odoslať nezáväznú požiadavku <app-icon name="arrow" [size]="18" /> }
+      </button>
+      <p class="booking__gdpr">{{ site.gdprNote }}</p>
+    </form>
+
+    <aside class="booking__summary" aria-live="polite">
+      <h3>Súhrn vašej cesty</h3>
+      @if (camper(); as c) {
+        <div class="sum-camper">
+          <img [src]="c.cover_image_url" [alt]="c.name" width="96" height="72" loading="lazy" />
+          <p>{{ c.name }}</p>
+        </div>
+      } @else {
+        <p class="muted">Vyberte karavan a termín – odhad ceny sa zobrazí okamžite.</p>
+      }
+
+      @if (quote(); as q) {
+        <dl class="sum-rows tabular">
+          <div><dt>Dĺžka prenájmu</dt><dd>{{ q.days | plural: 'deň' : 'dni' : 'dní' }}</dd></div>
+          <div><dt>Priemerná denná sadzba</dt><dd>{{ q.dailyRate | eur }}</dd></div>
+          <div><dt>Prenájom</dt><dd>{{ q.rentalSubtotal | eur }}</dd></div>
+          @if (q.discountPercent) {
+            <div class="is-highlight"><dt>Zľava za dlhú cestu (-{{ q.discountPercent }} %)</dt><dd>-{{ q.discountAmount | eur }}</dd></div>
+          }
+          @if (q.accessoriesTotal) {
+            <div><dt>Doplnková výbava</dt><dd>{{ q.accessoriesTotal | eur }}</dd></div>
+          }
+          <div><dt>Servisný poplatok</dt><dd>{{ q.serviceFee | eur }}</dd></div>
+        </dl>
+        <div class="sum-total">
+          <span>Odhadovaná cena</span>
+          <strong class="tabular">{{ q.total | eur }}</strong>
+        </div>
+        <p class="sum-note">+ vratná kaucia {{ q.deposit | eur }}. Každý deň účtujeme podľa sezóny, do ktorej patrí.</p>
+      }
+
+      <div class="sum-depot">
+        <p><app-icon name="pin" [size]="18" /> <span><strong>{{ site.depot.label }}</strong><br />{{ site.depot.street }}, {{ site.depot.city }}</span></p>
+        <p><app-icon name="clock" [size]="18" /> <span class="tabular">{{ site.pickupTimes }}</span></p>
+        <p><app-icon name="parking" [size]="18" /> <span>{{ site.parkingNote }}</span></p>
+      </div>
+    </aside>
+  </div>
+}

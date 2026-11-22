@@ -1,0 +1,155 @@
+<section class="page-intro">
+  <div class="container">
+    <p class="eyebrow">Cenník a podmienky</p>
+    <h1>Cenník, podmienky a doplnková výbava</h1>
+    <p>
+      Transparentné sezónne ceny bez skrytých poplatkov. Platíte dennú sadzbu podľa sezóny,
+      jednorazový servisný poplatok a len tú doplnkovú výbavu, ktorú naozaj využijete.
+    </p>
+  </div>
+</section>
+
+<!-- Season legend -->
+<section class="section section--tight">
+  <div class="container">
+    <ul class="season-legend">
+      @for (s of seasons; track s.key) {
+        <li class="season-legend__item" [class.is-high]="s.key === 'high'">
+          <span class="season-legend__name">{{ s.shortLabel }}</span>
+          <span class="season-legend__months">{{ s.months }}</span>
+        </li>
+      }
+      @for (rule of site.pricing.longTripDiscounts; track rule.fromDays) {
+        <li class="season-legend__item season-legend__item--discount">
+          <span class="season-legend__name tabular">-{{ rule.percent }} %</span>
+          <span class="season-legend__months tabular">pri prenájme od {{ rule.fromDays }} dní</span>
+        </li>
+      }
+    </ul>
+  </div>
+</section>
+
+<!-- Comparison table -->
+<section class="section section--tight">
+  <div class="container">
+    <div class="section-head">
+      <h2>Porovnanie denných sadzieb</h2>
+      <p>Ceny za jeden deň prenájmu vrátane DPH. Minimálna dĺžka prenájmu je {{ site.pricing.minDays | plural: 'deň' : 'dni' : 'dní' }}, v hlavnej sezóne 7 dní.</p>
+    </div>
+
+    @if (campersStatus() === 'error') {
+      <p class="alert alert--error" role="alert">Cenník sa nepodarilo načítať.</p>
+    } @else if (campersStatus() !== 'ready') {
+      <div class="skeleton compare-skeleton"></div>
+    } @else {
+      <div class="compare card">
+        <table class="compare__table tabular">
+          <caption class="visually-hidden">Porovnanie sezónnych cien všetkých vozidiel</caption>
+          <thead>
+            <tr>
+              <th scope="col">Vozidlo</th>
+              @for (s of seasons; track s.key) {
+                <th scope="col" class="num" [class.is-high]="s.key === 'high'">
+                  {{ s.shortLabel }}<span>{{ s.months }}</span>
+                </th>
+              }
+              <th scope="col" class="num">Servisný poplatok</th>
+              <th scope="col" class="num">Kaucia</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (c of campers(); track c.slug) {
+              <tr>
+                <th scope="row">
+                  <a [routerLink]="['/karavany', c.slug]" class="compare__vehicle">
+                    <img [src]="c.cover_image_url" alt="" loading="lazy" width="72" height="54" />
+                    <span>
+                      <strong>{{ c.name }}</strong>
+                      <small>{{ c.seats_driving | plural: 'miesto' : 'miesta' : 'miest' }} • {{ c.berths_sleeping | plural: 'lôžko' : 'lôžka' : 'lôžok' }} • {{ c.transmission === 'automat' ? 'Automat' : 'Manuál' }}</small>
+                    </span>
+                  </a>
+                </th>
+                <td class="num">{{ c.low_season_price_eur | eur }}</td>
+                <td class="num">{{ c.mid_season_price_eur | eur }}</td>
+                <td class="num is-high"><strong>{{ c.high_season_price_eur | eur }}</strong></td>
+                <td class="num">{{ c.service_prep_fee_eur | eur }}</td>
+                <td class="num">{{ c.security_deposit_eur | eur }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</section>
+
+<!-- Fee + included -->
+<section class="section section--tight">
+  <div class="container grid grid--2">
+    <div class="info-card card">
+      <span class="info-card__icon"><app-icon name="sparkle" [size]="22" /></span>
+      <h2>Čo zahŕňa servisný poplatok</h2>
+      <p class="muted">Jednorazový poplatok za prípravu vozidla, aby ste mohli vyraziť hneď po prevzatí.</p>
+      <ul class="checklist">
+        @for (item of serviceFeeIncludes; track item) {
+          <li><app-icon name="check" [size]="18" [strokeWidth]="2.25" /> {{ item }}</li>
+        }
+      </ul>
+    </div>
+    <div class="info-card card">
+      <span class="info-card__icon"><app-icon name="shield" [size]="22" /></span>
+      <h2>V cene každého prenájmu</h2>
+      <p class="muted">Žiadne prekvapenia pri prevzatí – tieto služby sú vždy v cene.</p>
+      <ul class="checklist">
+        @for (item of alwaysIncluded; track item.text) {
+          <li><app-icon [name]="item.icon" [size]="18" /> {{ item.text }}</li>
+        }
+      </ul>
+      <p class="info-card__deposit">
+        <strong>Vratná kaucia</strong> sa platí pri prevzatí kartou alebo prevodom a vrátime ju do 3 pracovných dní po vrátení vozidla.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Accessories -->
+<section class="section section--mist">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Doplnková výbava</p>
+      <h2>Výbava na prenájom</h2>
+      <p>Nosič bicyklov, gril, paddleboard či posteľná bielizeň – pripravíme vám ich priamo do karavanu.</p>
+    </div>
+
+    @if (accessoriesStatus() === 'ready') {
+      <ul class="accessory-grid">
+        @for (a of accessories(); track a.id) {
+          <li class="accessory-card card">
+            <span class="accessory-card__icon"><app-icon [name]="a.icon_name" [size]="24" /></span>
+            <h3>{{ a.name }}</h3>
+            <p class="muted">{{ a.description }}</p>
+            <p class="accessory-card__price tabular">
+              <strong>{{ a.price_eur | eur }}</strong>
+              <span>{{ a.pricing_type === 'za_den' ? '/ deň' : '/ celý pobyt' }}</span>
+            </p>
+          </li>
+        }
+      </ul>
+    } @else if (accessoriesStatus() === 'error') {
+      <p class="alert alert--error" role="alert">Doplnkovú výbavu sa nepodarilo načítať.</p>
+    } @else {
+      <div class="skeleton compare-skeleton"></div>
+    }
+  </div>
+</section>
+
+<!-- Estimator -->
+<section class="section" id="kalkulacka">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Kalkulačka</p>
+      <h2>Vypočítajte si cenu na mieru</h2>
+    </div>
+    <app-camper-trip-and-cost-estimator />
+  </div>
+</section>

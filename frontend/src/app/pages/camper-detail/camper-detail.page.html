@@ -1,0 +1,189 @@
+@switch (state().status) {
+  @case ('loading') {
+    <div class="container dossier-loading">
+      <div class="skeleton dossier-loading__hero"></div>
+      <div class="skeleton dossier-loading__bar"></div>
+    </div>
+  }
+  @case ('error') {
+    <section class="section">
+      <div class="container not-found">
+        <app-icon name="compass" [size]="40" />
+        <h1>Tento karavan sme nenašli</h1>
+        <p class="muted">Vozidlo už nemusí byť v našej flotile, alebo sa nepodarilo spojiť so serverom.</p>
+        <a class="btn btn--primary" routerLink="/karavany">Späť na flotilu</a>
+      </div>
+    </section>
+  }
+}
+
+@if (camper(); as c) {
+  <div class="container">
+    <nav class="breadcrumbs" aria-label="Omrvinková navigácia">
+      <a routerLink="/">Domov</a>
+      <app-icon name="chevron-right" [size]="14" />
+      <a routerLink="/karavany">Karavany</a>
+      <app-icon name="chevron-right" [size]="14" />
+      <span aria-current="page">{{ c.name }}</span>
+    </nav>
+  </div>
+
+  <!-- Gallery + headline -->
+  <section class="container dossier">
+    <div class="gallery">
+      <button type="button" class="gallery__main" (click)="openLightbox()" aria-label="Otvoriť fotografiu na celú obrazovku">
+        @if (activeImage(); as img) {
+          <img [src]="img.image_url" [alt]="img.caption || c.name" width="1600" height="1067" fetchpriority="high" />
+        }
+        <span class="gallery__expand"><app-icon name="expand" [size]="18" /> Zväčšiť</span>
+        @if (c.badge !== 'none') {
+          <span class="badge gallery__badge">{{ c.badge_label }}</span>
+        }
+      </button>
+      @if (gallery().length > 1) {
+        <ul class="gallery__thumbs" aria-label="Náhľady fotografií">
+          @for (img of gallery(); track img.id; let i = $index) {
+            <li>
+              <button
+                type="button"
+                class="gallery__thumb"
+                [class.is-active]="i === activeIndex()"
+                [attr.aria-current]="i === activeIndex()"
+                [attr.aria-label]="'Fotografia ' + (i + 1) + ': ' + img.caption"
+                (click)="select(i)"
+              >
+                <img [src]="img.image_url" alt="" loading="lazy" width="200" height="134" />
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <div class="headline">
+      <span class="pill">{{ c.category_label }}</span>
+      <h1>{{ c.name }}</h1>
+      <p class="headline__desc">{{ c.description }}</p>
+
+      <div class="headline__price">
+        <span>Cena od</span>
+        <strong class="tabular">{{ c.starting_price_eur | eur }}</strong>
+        <span>/ deň</span>
+      </div>
+
+      <div class="headline__actions">
+        <a
+          class="btn btn--primary"
+          routerLink="/ako-to-funguje"
+          [queryParams]="{ camper: c.slug }"
+          fragment="rezervacia"
+        >Rezervovať tento karavan <app-icon name="arrow" [size]="18" /></a>
+        <a class="btn btn--ghost" href="#kalkulacka">Vypočítať cenu</a>
+      </div>
+
+      <p class="headline__note">
+        <app-icon name="license" [size]="18" /> {{ c.license_note }}
+      </p>
+    </div>
+  </section>
+
+  <!-- Spec bar -->
+  <section class="container">
+    <ul class="specbar" aria-label="Technické parametre">
+      @for (s of specs(); track s.label) {
+        <li>
+          <app-icon [name]="s.icon" [size]="22" />
+          <span class="specbar__label">{{ s.label }}</span>
+          <strong class="specbar__value tabular">{{ s.value }}</strong>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <!-- Pricing + equipment -->
+  <section class="section">
+    <div class="container dossier-info">
+      <div>
+        <h2 class="block-title">Sezónny cenník &amp; poplatky</h2>
+        <div class="table-wrap card">
+          <table class="price-table tabular">
+            <caption class="visually-hidden">Sezónny cenník pre {{ c.name }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">Sezóna</th>
+                <th scope="col">Obdobie</th>
+                <th scope="col" class="num">Cena / deň</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of seasonRows(); track row.key) {
+                <tr [class.is-high]="row.key === 'high'">
+                  <th scope="row">{{ row.shortLabel }}</th>
+                  <td>{{ row.months }}</td>
+                  <td class="num"><strong>{{ row.rate | eur }}</strong></td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <th scope="row" colspan="2">Jednorazový servisný poplatok</th>
+                <td class="num">{{ c.service_prep_fee_eur | eur }}</td>
+              </tr>
+              <tr>
+                <th scope="row" colspan="2">Vratná kaucia</th>
+                <td class="num">{{ c.security_deposit_eur | eur }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <p class="price-note">
+          <app-icon name="info" [size]="18" />
+          Zľava za dlhú cestu: <strong>-5 % od 10 dní</strong> a <strong>-10 % od 14 dní</strong>. Ceny sú vrátane DPH.
+        </p>
+      </div>
+
+      <div>
+        <h2 class="block-title">Výbava v cene prenájmu</h2>
+        <ul class="equipment card">
+          @for (item of c.included_equipment; track item) {
+            <li><span class="equipment__check"><app-icon name="check" [size]="16" [strokeWidth]="2.5" /></span> {{ item }}</li>
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--mist" id="kalkulacka">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Kalkulačka</p>
+        <h2>Vypočítajte si cenu cesty s týmto karavanom</h2>
+      </div>
+      <app-camper-trip-and-cost-estimator [initialCamperSlug]="c.slug" heading="Vaša cesta" />
+    </div>
+  </section>
+
+  <!-- Lightbox -->
+  @if (lightboxOpen()) {
+    <div class="lightbox" role="dialog" aria-modal="true" [attr.aria-label]="'Galéria – ' + c.name">
+      <button type="button" class="lightbox__backdrop" (click)="closeLightbox()" aria-label="Zavrieť galériu"></button>
+      @if (activeImage(); as img) {
+        <figure class="lightbox__figure">
+          <img [src]="img.image_url" [alt]="img.caption || c.name" />
+          <figcaption class="tabular">{{ img.caption }} • {{ activeIndex() + 1 }} / {{ gallery().length }}</figcaption>
+        </figure>
+      }
+      <button type="button" class="lightbox__btn lightbox__btn--close" (click)="closeLightbox()" aria-label="Zavrieť">
+        <app-icon name="close" [size]="24" />
+      </button>
+      @if (gallery().length > 1) {
+        <button type="button" class="lightbox__btn lightbox__btn--prev" (click)="step(-1)" aria-label="Predchádzajúca fotografia">
+          <app-icon name="chevron-left" [size]="28" />
+        </button>
+        <button type="button" class="lightbox__btn lightbox__btn--next" (click)="step(1)" aria-label="Ďalšia fotografia">
+          <app-icon name="chevron-right" [size]="28" />
+        </button>
+      }
+    </div>
+  }
+}
