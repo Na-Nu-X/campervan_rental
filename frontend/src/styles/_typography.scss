@@ -1,0 +1,55 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+@mixin heading-serif {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-optical-sizing: auto;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+  color: inherit;
+  text-wrap: balance;
+}
+
+@mixin display {
+  @include heading-serif;
+  font-size: clamp(2.4rem, 6.2vw, 4.6rem);
+  font-weight: 450;
+  letter-spacing: -0.025em;
+  line-height: 1.02;
+}
+
+@mixin h1 {
+  @include heading-serif;
+  font-size: clamp(2.1rem, 4.6vw, 3.4rem);
+}
+
+@mixin h2 {
+  @include heading-serif;
+  font-size: clamp(1.75rem, 3.4vw, 2.6rem);
+}
+
+@mixin h3 {
+  @include heading-serif;
+  font-size: clamp(1.25rem, 2vw, 1.5rem);
+  line-height: 1.25;
+}
+
+@mixin eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@mixin lead {
+  font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+  line-height: 1.6;
+  color: var(--color-ink-soft);
+}
+
+@mixin tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
