@@ -39,7 +39,8 @@ export class HomePage {
   protected readonly transmissionOptions = TRANSMISSION_OPTIONS;
   protected readonly peopleOptions = [2, 3, 4, 5, 6];
 
-  protected readonly featured = this.store.featuredCampers;
+  /** Three featured campers fill one row of the editorial grid. */
+  protected readonly featured = computed(() => this.store.featuredCampers().slice(0, 3));
   protected readonly campersStatus = this.store.campersStatus;
   protected readonly routes = computed(() => this.store.routes().slice(0, 3));
   protected readonly routesStatus = this.store.routesStatus;

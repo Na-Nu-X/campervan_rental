@@ -19,7 +19,7 @@
           <span class="season-legend__months">{{ s.months }}</span>
         </li>
       }
-      @for (rule of site.pricing.longTripDiscounts; track rule.fromDays) {
+      @for (rule of discountRules; track rule.fromDays) {
         <li class="season-legend__item season-legend__item--discount">
           <span class="season-legend__name tabular">-{{ rule.percent }} %</span>
           <span class="season-legend__months tabular">pri prenájme od {{ rule.fromDays }} dní</span>

@@ -21,6 +21,9 @@ export class PricingPage {
 
   protected readonly site = SITE_CONFIG;
   protected readonly seasons = SEASONS;
+  protected readonly discountRules = [...SITE_CONFIG.pricing.longTripDiscounts].sort(
+    (a, b) => a.fromDays - b.fromDays,
+  );
   protected readonly campers = this.store.campers;
   protected readonly campersStatus = this.store.campersStatus;
   protected readonly accessories = this.store.accessories;
